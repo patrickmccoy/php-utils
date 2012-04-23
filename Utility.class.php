@@ -153,6 +153,25 @@ class Utility {
             return true;
         }
     }
+    
+    /**
+     * Check to see if a string is a valid CIDR
+     *
+     * @param cidr the string to check
+     * @return bool
+     */
+    public static function isCIDR($cidr) {
+
+        $cidr_regex = '/^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5]))\/([1-9]|[1-2]\d|3[0-2])$/';
+        $matches = array();
+        if (preg_match($cidr_regex, $cidr, $matches)) {
+            if ($matches[1] && $matches[6]) {
+               return (bool) self::validateIP($matches[1]);
+            }
+        }
+
+        return false;
+    }
 
     /**
      * Break a CIDR into its high and low ranges
@@ -194,50 +213,25 @@ class Utility {
         header('Location: ' . $uri);
         exit();
     }
+
     /**
-     * utility version of this function from the util function include
-     *
-     * escapes html to make it safe for displaying.
+     * Escapes HTML in a string
      *
      * @param string $string
-     * @param int $quote_style
-     * @param string $charset
-     * @return type
+     * @return string
      */
-    public static function escapeHtml($string, $quote_style = ENT_COMPAT, $charset = 'UTF-8') {
-
-        $decoded_string = htmlentities($string, $quote_style, $charset, false);
-        if (!$decoded_string) {
-            //wasn't able to do decoding, probably due to an invalid multi-byte character
-            //detect character encoding
-            $encoding_list = array('UTF-8', 'ISO-8859-1');
-            $encoding = mb_detect_encoding($string, $encoding_list);
-
-            // try converting again using that encoding
-            if (in_array($encoding, $encoding_list) && mb_check_encoding($string, $encoding)) {
-                $decoded_string = htmlentities($string, $quote_style, $encoding, false);
-            }
-
-            if (!$decoded_string) {
-                return $string;
-            }
-        }
-        return $decoded_string;
+    public static function escapeHTML($string) {
+        return filter_var($string, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     }
 
-    // return boolean
-    // check to see if string is a CIDR range
-    public static function isCIDR($cidr) {
-
-        $cidr_regex = '/^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5]))\/([1-9]|[1-2]\d|3[0-2])$/';
-        $matches = array();
-        if (preg_match($cidr_regex, $cidr, $matches)) {
-            if ($matches[1] && $matches[6]) {
-               return (bool) self::validateIP($matches[1]);
-            }
-        }
-
-        return false;
+    /**
+     * Sanitize An Email
+     *
+     * @param string $email
+     * @return string
+     */
+    public static function sanitizeEmail($email) {
+        return filter_var($email, FILTER_SANITIZE_EMAIL);
     }
 
     /**
