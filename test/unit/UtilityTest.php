@@ -1,5 +1,4 @@
 <?php
-require_once __DIR__ . '/../Utility.class.php';
 
 /**
  * Test class for Common_Utility.
